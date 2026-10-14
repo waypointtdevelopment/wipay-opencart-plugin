@@ -1,0 +1,117 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ dashboard }}">{{ text_dashboard }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ extension }}">{{ text_extension }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ back }}">{{ heading_title }}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_permission %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_permission }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endif %}
+    <div class="card">
+      <div class="card-header"><i class="fa fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-body">
+        <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <ul class="nav nav-tabs">
+            <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ text_general }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-general">
+              <div class="row mb-3">
+                <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_wipay_waypoint_status" id="input-status" class="form-select">
+                    {% if payment_wipay_waypoint_status %}
+                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                    <option value="0">{{ text_disabled }}</option>
+                    {% else %}
+                    <option value="1">{{ text_enabled }}</option>
+                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-title" class="col-sm-2 col-form-label">{{ entry_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_wipay_waypoint_title" value="{{ payment_wipay_waypoint_title }}" id="input-title" class="form-control" />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-text" class="col-sm-2 col-form-label">{{ entry_text }}</label>
+                <div class="col-sm-10">
+                  <textarea name="payment_wipay_waypoint_text" rows="3" id="input-text" class="form-control">{{ payment_wipay_waypoint_text }}</textarea>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-environment" class="col-sm-2 col-form-label">{{ entry_environment }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_wipay_waypoint_environment" id="input-environment" class="form-select">
+                    {% if payment_wipay_waypoint_environment == 'sandbox' %}
+                    <option value="sandbox" selected="selected">{{ text_sandbox }}</option>
+                    <option value="live">{{ text_live }}</option>
+                    {% else %}
+                    <option value="sandbox">{{ text_sandbox }}</option>
+                    <option value="live" selected="selected">{{ text_live }}</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-country" class="col-sm-2 col-form-label">{{ entry_country }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_wipay_waypoint_country" id="input-country" class="form-select">
+                    <option value="">{{ text_select }}</option>
+                    {% for country in countries %}
+                    <option value="{{ country.code }}" {% if payment_wipay_waypoint_country == country.code %}selected="selected"{% endif %}>{{ country.name }}</option>
+                    {% endfor %}
+                  </select>
+                  {% if error_country %}
+                  <div class="text-danger">{{ error_country }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-fee" class="col-sm-2 col-form-label">{{ entry_fee }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_wipay_waypoint_fee" id="input-fee" class="form-select">
+                    <option value="merchant_absorb" {% if payment_wipay_waypoint_fee == 'merchant_absorb' %}selected="selected"{% endif %}>{{ text_absorb }}</option>
+                    <option value="customer_pay" {% if payment_wipay_waypoint_fee == 'customer_pay' %}selected="selected"{% endif %}>{{ text_pay }}</option>
+                    <option value="split" {% if payment_wipay_waypoint_fee == 'split' %}selected="selected"{% endif %}>{{ text_split }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-account" class="col-sm-2 col-form-label">{{ entry_account }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_wipay_waypoint_account" value="{{ payment_wipay_waypoint_account }}" id="input-account" class="form-control" />
+                  <div class="form-text">{{ help_account }}<br />{{ help_live_key }}</div>
+                  {% if error_live %}
+                  <div class="text-danger">{{ error_live }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="input-sort-order" class="col-sm-2 col-form-label">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_wipay_waypoint_sort_order" value="{{ payment_wipay_waypoint_sort_order }}" id="input-sort-order" class="form-control" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

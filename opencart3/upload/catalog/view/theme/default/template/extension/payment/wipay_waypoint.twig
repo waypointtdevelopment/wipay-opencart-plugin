@@ -1,0 +1,32 @@
+<div class="text-end">
+  <p class="mb-1">{{ description }}</p>
+  <button type="button" id="button-wipay-waypoint" data-loading-text="{{ text_loading|default('Loading...') }}" class="btn btn-primary">{{ button_confirm }}</button>
+</div>
+<script type="text/javascript"><!--
+$('#button-wipay-waypoint').on('click', function() {
+	var button = $(this);
+	button.prop('disabled', true);
+
+	$.ajax({
+		type: 'post',
+		url: 'index.php?route=extension/payment/wipay_waypoint/confirm',
+		dataType: 'json',
+		complete: function() {
+			button.prop('disabled', false);
+		},
+		success: function(json) {
+			if (json['error']) {
+				alert(json['error']);
+				return;
+			}
+
+			if (json['redirect']) {
+				window.location.href = json['redirect'];
+			}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + '\r\n' + xhr.statusText + '\r\n' + xhr.responseText);
+		}
+	});
+});
+//--></script>
