@@ -8,12 +8,12 @@ The extension is unit-tested but has not yet been run against WiPay sandbox. Wor
 php tests/run-tests.php
 ```
 
-205 assertions covering the host map, credential selection, hash computation and verification, checkout-URL allowlisting, payload field rules and length caps, and the attempt ledger. This must be green before anything else.
+227 assertions covering the host map, credential selection, hash computation and verification, checkout-URL allowlisting, payload field rules and length caps, the attempt ledger, and the TTD minimum guard. This must be green before anything else.
 
 ## 2. Sandbox setup
 
 1. Register a sandbox account with WiPay and note the published test values (`account_number` `1234567890`, `api_key` `123`). The extension uses these automatically when Environment is **Sandbox** — do not enter your own credentials.
-2. Create an order in the store and confirm the shopper reaches WiPay's hosted page and can complete a card payment with a sandbox test card.
+2. Create an order in the store and confirm the shopper reaches WiPay's hosted page and can complete a card payment. Use the card set for the store's currency — WiPay publishes a TTD set and a separate USD/other-currencies set and states they are not interchangeable. For USD or any non-TTD store use `4242424242424242` (success) and `4000000000000002` (decline); for a TTD store use `4000000000002719` (frictionless, Status=A). WiPay publishes no plain decline card for TTD, so exercise the decline case with the store set to USD or use `4000000000002644` (Status=U, authentication error).
 3. Confirm the shopper returns to the store and the order moves to the expected paid status.
 
 ## 3. Callback verification
@@ -47,6 +47,7 @@ For cases 5, 6 and 8 you will need the real callback URL. Grab it from the order
 | Country set to a value outside the map | Same refusal. |
 | Status disabled | WiPay no longer appears in the payment method list at checkout. |
 | Environment switched to Live without `WIPAY_WAYPOINT_LIVE_API_KEY` | Saving is refused in admin, with a message naming the constant. |
+| TT platform with a TTD order below 5.00 | Confirm refuses with "WiPay requires a minimum payment of TTD 5.00." and no request reaches WiPay. |
 
 ## 6. Per-version checks
 
@@ -56,7 +57,7 @@ For cases 5, 6 and 8 you will need the real callback URL. Grab it from the order
 
 ## 7. What has not been verified
 
-- That WiPay's sandbox hosts for Barbados, Grenada, Guyana and Jamaica match the documented layout. Only the Trinidad & Tobago pair is published. Confirm each against WiPay's Platforms and Environments page.
+- ~~That WiPay's sandbox hosts for Barbados, Grenada, Guyana and Jamaica match the documented layout.~~ **Closed 15 October 2026:** all five live/sandbox pairs match WiPay's Platforms and Environments page, and all ten hostnames were probed and returned HTTP 200 over HTTPS.
 - Whether the `wipay_waypoint_attempt` table creation succeeds on every host's MySQL configuration. Watch the error log on the first checkout after install.
 - The exact `addHistory()` return type across every OpenCart 4 point release.
 - Any behaviour under PHP versions other than the one you test on.

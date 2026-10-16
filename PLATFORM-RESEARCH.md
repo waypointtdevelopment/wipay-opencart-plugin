@@ -25,7 +25,7 @@ WiPay's current Payments API uses a hosted payment page. Create requests server-
 - Language and template routes include the `extension/<package>/` prefix.
 
 ## Remaining unknowns
-- Whether WiPay's non-TT territory hosts match the documented layout; only the TT pair is published. Re-confirm before release.
+- ~~Whether WiPay's non-TT territory hosts match the documented layout; only the TT pair is published. Re-confirm before release.~~ **Closed 15 October 2026:** all five live/sandbox pairs (BB, GD, GY, JM, TT) match WiPay's Platforms and Environments page, and all ten hostnames returned HTTP 200 when probed over HTTPS.
 - Behaviour of the lazily created table on hosts with unusual MySQL permissions.
 
 ## References

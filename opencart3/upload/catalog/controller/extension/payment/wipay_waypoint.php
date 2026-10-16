@@ -76,6 +76,13 @@ class ControllerExtensionPaymentWipayWaypoint extends Controller {
 			return;
 		}
 
+		$blocked = $model->minimumError( $order );
+
+		if ( $blocked !== '' ) {
+			$this->errorJson( $blocked );
+			return;
+		}
+
 		$transaction_id = 'oc3' . $order_id . '_' . uniqid( '', false );
 
 		$response_url = $this->url->link( 'extension/payment/wipay_waypoint/callback', '', true );

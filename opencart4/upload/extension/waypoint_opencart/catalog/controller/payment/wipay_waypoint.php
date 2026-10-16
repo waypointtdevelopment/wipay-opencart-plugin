@@ -79,6 +79,13 @@ class WipayWaypoint extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
+		$blocked = $model->minimumError($order);
+
+		if ($blocked !== '') {
+			$this->errorJson($blocked);
+			return;
+		}
+
 		$transaction_id = 'oc4' . $order_id . '_' . uniqid('', false);
 
 		$response_url = $this->url->link(

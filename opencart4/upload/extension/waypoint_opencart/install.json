@@ -3,5 +3,5 @@
   "description": "Hosted card checkout for WiPay. Shoppers are sent to WiPay's payment page and returned to the store, where the result is verified server-side. Maintained by Waypoint; not affiliated with, sponsored by, or endorsed by WiPay.",
   "version": "1.0.0",
   "author": "Waypoint",
-  "link": "https://github.com/waypointlabs/wipay-opencart-plugin"
+  "link": "https://github.com/waypointtdevelopment/wipay-opencart-plugin"
 }

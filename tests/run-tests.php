@@ -131,6 +131,37 @@ function run_shared_battery( $model, string $version ): void {
 	);
 	check( "$version endpoint unknown country", $model->endpoint( 'US', 'sandbox' ), '' );
 
+	/* --- Minimum amount guard ------------------------------------ */
+
+	$too_small = array(
+		'order_id'      => 7,
+		'email'         => 'buyer@example.com',
+		'total'         => '4.99',
+		'currency_code' => 'TTD',
+	);
+
+	check(
+		"$version blocks a sub-minimum TTD order",
+		$model->minimumError( $too_small ),
+		'WiPay requires a minimum payment of TTD 5.00.'
+	);
+	check( "$version allows exactly the minimum", $model->minimumError( array( 'total' => '5.00', 'currency_code' => 'TTD' ) ), '' );
+	check( "$version allows above the minimum", $model->minimumError( array( 'total' => '5.01', 'currency_code' => 'TTD' ) ), '' );
+
+	/* The guard is scoped to the TT platform, so other currencies are free. */
+	check( "$version does not block a sub-minimum USD order", $model->minimumError( array( 'total' => '4.99', 'currency_code' => 'USD' ) ), '' );
+
+	/* An order with no currency falls back to the store default, which the
+	 * shared fixture sets to TTD, so the guard must still apply. */
+	check( "$version falls back to the store currency", $model->minimumError( array( 'total' => '4.99' ) ), 'WiPay requires a minimum payment of TTD 5.00.' );
+
+	/* A non-TT platform is never blocked by the TTD floor. */
+	list( $other_platform ) = make_model( $version, array( 'payment_wipay_waypoint_country' => 'JM' ) );
+	check( "$version a non-TT platform is not blocked", $other_platform->minimumError( $too_small ), '' );
+
+	/* The guard and the payload must agree on the currency. */
+	check( "$version payload currency still resolves", $model->buildPayload( $too_small, 'https://ttsb.wipayfinancial.com/callback' )['currency'], 'TTD' );
+
 	/* --- Credentials ---------------------------------------------- */
 
 	check( "$version sandbox account is pinned", $model->accountNumber( 'sandbox' ), '1234567890' );

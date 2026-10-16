@@ -19,8 +19,9 @@ class WipayWaypoint extends \Opencart\System\Engine\Model {
 	/**
 	 * Territory => environment => hostname.
 	 *
-	 * The TT pair is published on WiPay's Platforms and Environments page. The
-	 * others follow the documented host layout; re-confirm before release.
+	 * All five live/sandbox pairs are confirmed against WiPay's Platforms and
+	 * Environments page (checked 15 October 2026), and all ten hostnames were
+	 * verified reachable over HTTPS. This is no longer an open release item.
 	 *
 	 * @var array<string, array<string, string>>
 	 */
@@ -234,6 +235,45 @@ class WipayWaypoint extends \Opencart\System\Engine\Model {
 	 * omitted unless their parent is present, and every value is capped at
 	 * its documented length.
 	 *
+	/**
+	 * The message blocking this order, or an empty string when it may proceed.
+	 *
+	 * WiPay documents a TTD floor of 5 for the Trinidad & Tobago platform (Get
+	 * Transaction Metadata returns totals.TTD as minimum 5, maximum 20400).
+	 * Sending less would be rejected by WiPay anyway, so the shopper is told
+	 * before the request is built instead of after it fails.
+	 *
+	 * Mirrors the guard already in the WordPress and Magento gateways.
+	 *
+	 * @param array $order Row from model_checkout_order->getOrder().
+	 * @return string
+	 */
+	public function minimumError(array $order): string {
+		if (strtoupper($this->country()) !== 'TT' || $this->orderCurrency($order) !== 'TTD') {
+			return '';
+		}
+
+		return (float)($order['total'] ?? 0) < 5.00
+			? 'WiPay requires a minimum payment of TTD 5.00.'
+			: '';
+	}
+
+	/**
+	 * The order's currency, falling back to the store default.
+	 *
+	 * Shared with buildPayload so the guard and the payload can never disagree
+	 * about which currency is being paid.
+	 *
+	 * @param array $order
+	 * @return string
+	 */
+	private function orderCurrency(array $order): string {
+		return !empty($order['currency_code'])
+			? strtoupper((string)$order['currency_code'])
+			: strtoupper((string)$this->config->get('config_currency'));
+	}
+
+	/**
 	 * @param array $order Row from model_checkout_order->getOrder().
 	 * @param string $response_url Public callback URL.
 	 * @return array
@@ -242,9 +282,7 @@ class WipayWaypoint extends \Opencart\System\Engine\Model {
 		$environment = $this->environment();
 		$country     = $this->country();
 		$total       = number_format((float)($order['total'] ?? 0), 2, '.', '');
-		$currency    = !empty($order['currency_code'])
-			? strtoupper((string)$order['currency_code'])
-			: strtoupper((string)$this->config->get('config_currency'));
+		$currency    = $this->orderCurrency($order);
 
 		$payload = [
 			'account_number' => (int)$this->accountNumber($environment),

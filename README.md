@@ -6,7 +6,7 @@ Shoppers are sent to WiPay's hosted payment page to enter their card, then retur
 
 ## Status
 
-**Sandbox testing release.** The request/response contract is implemented from WiPay's published Payments API documentation and unit-tested (`php tests/run-tests.php`, 205 assertions). It has **not yet been exercised against WiPay sandbox or live**. Work through [TESTING.md](TESTING.md) before relying on it.
+**Sandbox testing release.** The request/response contract is implemented from WiPay's published Payments API documentation and unit-tested (`php tests/run-tests.php`, 227 assertions). It has **not yet been exercised against WiPay sandbox or live**. Work through [TESTING.md](TESTING.md) before relying on it.
 
 Live payment processing has never been tested. Installers must keep the gateway in Sandbox.
 
@@ -28,6 +28,7 @@ The two versions share the same security design and the same WiPay contract; the
 - A late successful payment for an order that has already moved on is recorded on the order as a note for manual review rather than silently re-completing it.
 - Failed or cancelled responses only move an order that is still pending.
 - The live response key is never written to the settings table. It is read from a constant defined in `config.php`.
+- WiPay's documented TTD minimum is enforced before the request is built: a TT-platform order totalling less than TTD 5.00 is refused with a clear message instead of being sent to WiPay.
 
 ## Installation
 
@@ -73,7 +74,7 @@ It is never entered through the admin form and is never stored in the settings t
 | Jamaica | `jmsb.wipayfinancial.com` | `jm.wipayfinancial.com` |
 | Trinidad & Tobago | `ttsb.wipayfinancial.com` | `tt.wipayfinancial.com` |
 
-The Trinidad & Tobago pair is published by WiPay. The others follow the documented host layout and must be re-confirmed against WiPay's Platforms and Environments page before a release. The request endpoint on every host is `/plugins/payments/request`.
+All five live/sandbox pairs were re-confirmed against WiPay's Platforms and Environments page on 15 October 2026; all ten hostnames were probed and returned HTTP 200 over HTTPS. The request endpoint on every host is `/plugins/payments/request`.
 
 If the configured country is not in this map, the extension refuses to send the request and tells the shopper the gateway is not configured for their territory, rather than failing silently.
 
